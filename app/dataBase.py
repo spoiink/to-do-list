@@ -2,11 +2,7 @@ from sqlalchemy import create_engine
 
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-
-
-DATABASE_URL = ("postgresql+psycopg://postgres:mc_c13370r"
-                "@localhost:5432/to-Do_db"
-)
+from app.config import DATABASE_URL   # строка подключения берётся из .env
 
 
 engine = create_engine(DATABASE_URL)

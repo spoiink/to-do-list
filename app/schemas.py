@@ -3,6 +3,16 @@ from pydantic_core.core_schema import FieldValidationInfo
 import re
 
 
+def check_username(value: str) -> str:
+    # Только латиница, цифры и _
+    if not re.match(r"^[a-zA-Z0-9_]+$", value):
+        raise ValueError("Имя пользователя может содержать только буквы, цифры и _")
+    # И хотя бы одна буква или цифра, чтобы нельзя было взять "___"
+    if not re.search(r"[a-zA-Z0-9]", value):
+        raise ValueError("Имя пользователя должно содержать хотя бы одну букву или цифру")
+    return value
+
+
 class UserRegister(BaseModel):
     login: str = Field(min_length=3, max_length=127)
     username: str = Field(min_length=3, max_length=20)
@@ -16,9 +26,7 @@ class UserRegister(BaseModel):
     @field_validator("username")
     @classmethod
     def validate_username_chars(cls, value: str) -> str:
-        if not re.match(r"^[a-zA-Z0-9_]+$", value):
-            raise ValueError("Имя пользователя может содержать только буквы и цифры")
-        return value
+        return check_username(value)
 
     # Валидатор для пароля: проверка на наличие букв И чисел
     @field_validator("password")
@@ -76,3 +84,47 @@ class UserProfile(BaseModel):
     username: str
     bio: str | None = None
     avatar_url: str | None = None
+
+
+
+class ProfileUpdate(BaseModel):
+    username: str | None = Field(default=None, min_length=3, max_length=20)
+    bio: str | None = Field(default=None, max_length=255)
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, value: str | None) -> str:
+        if value is None:
+            raise ValueError("username нельзя удалить")
+        return check_username(value)
+
+    @field_validator("bio")
+    @classmethod
+    def normalize_bio(cls, value: str | None) -> str | None:
+        # "" и "   " считаем пустым bio, то есть null
+        if value is None:
+            return None
+        value = value.strip()
+        return value or None
+
+
+# Примеры для выпадающего списка в Swagger у PATCH /profile/me.
+# Без них Swagger подставляет ВСЕ поля со значением "string".
+PROFILE_UPDATE_EXAMPLES = {
+    "bio": {
+        "summary": "Только bio",
+        "value": {"bio": "Пару слов о себе"},
+    },
+    "username": {
+        "summary": "Только username",
+        "value": {"username": "new_name"},
+    },
+    "both": {
+        "summary": "username и bio",
+        "value": {"username": "new_name", "bio": "Пару слов о себе"},
+    },
+    "clear_bio": {
+        "summary": "Очистить bio",
+        "value": {"bio": None},
+    },
+}

@@ -15,7 +15,7 @@ def add_refresh_token(db: Session, user_id: int, token_hash: str, expires_at: da
     db.commit()
 
 
-def z(db: Session, token_hash: str) -> RefreshToken | None:
+def get_by_hash(db: Session, token_hash: str) -> RefreshToken | None:
     return db.scalar(select(RefreshToken).where(RefreshToken.token_hash == token_hash))
 
 

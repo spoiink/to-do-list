@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.models import User
 from app.dependency import get_db
 from app.utils.security import decode_access_token
-from app.repository.users import users as users_repository
+from app.repository import users as users_repository
 
 bearer_scheme = HTTPBearer()
 

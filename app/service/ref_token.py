@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 
 
-from app.api.v1.auth import TokenPair
+from app.schemas import TokenPair
 from app.models import User
 from app.repository import ref_token as ref_token_repos
 from app.repository.users import get_user

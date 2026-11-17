@@ -8,7 +8,7 @@ import hashlib, secrets
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
-SECRET_KEY = os.environ["SECRET_KEY"]   # длинная случайная строка, не в коде и не в git
+from app.config import SECRET_KEY   # длинная случайная строка, хранится в .env, не в git
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
